@@ -1,0 +1,10 @@
+venv
+*.json
+*.pyc
+data*
+out*
+node_modules
+powerboxes
+title_lines
+type_lines
+borders
