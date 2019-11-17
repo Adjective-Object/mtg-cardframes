@@ -10,12 +10,12 @@ from composite import composite
 
 
 def get_power_boxes_array(images_dir_path):
-    all_photos_typelines_file = os.path.join(images_dir_path, 'all_photos_powers.npy')
+    all_photos_typelines_file = os.path.join(images_dir_path, "all_photos_powers.npy")
     if not os.path.isfile(all_photos_typelines_file):
         print("loading from %s" % all_photos_typelines_file)
         all_photos = create_all_photos_array_from_directory(
             images_dir_path,
-            transform=lambda arr: arr[915:915+78, 563:563+151,:]
+            transform=lambda arr: arr[915 : 915 + 78, 563 : 563 + 151, :],
         )
         if all_photos is not None:
             print(all_photos.shape)
@@ -39,40 +39,38 @@ if __name__ == "__main__":
         d
         for d in data_dirs
         if os.path.isdir(os.path.join(data_dir, d))
-        and '-type:creature' in d
-        and '--type:creature' not in d
-
+        and "-type:creature" in d
+        and "--type:creature" not in d
     ]
 
     multicoloured = [
-        d for d in data_dirs if re.search(r"(^|[^-]-)(c:(\w|[-:])*)([^-]-c):", d) is not None
+        d
+        for d in data_dirs
+        if re.search(r"(^|[^-]-)(c:(\w|[-:])*)([^-]-c):", d) is not None
     ]
 
     # print("multicolored", len(multicoloured), len(data_dirs), [d for d in data_dirs if d in multicoloured])
     # print([d for d in data_dirs if d not in multicoloured])
 
-    color_flags = [
-        'c:r', 'c:u', 'c:g', 'c:w', 'c:c', 'c:b', 'c:c'
-    ]
+    color_flags = ["c:r", "c:u", "c:g", "c:w", "c:c", "c:b", "c:c"]
 
     colors_dict = {
-        'multi': multicoloured,
+        "multi": multicoloured,
     }
     for c in color_flags:
         colors_dict[c] = [
-            d for d in data_dirs if d not in multicoloured and re.search(r"(^|[^-]-)" + c, d)
+            d
+            for d in data_dirs
+            if d not in multicoloured and re.search(r"(^|[^-]-)" + c, d)
         ]
 
     print("colors_dict", json.dumps(colors_dict, indent=2))
-
 
     for name, photos_dirs in colors_dict.items():
         print("collecting %s power boxes from" % name, photos_dirs)
         all_typelines = []
         for photo_dir in photos_dirs:
-            these_power_boxes = get_power_boxes_array(
-                os.path.join(data_dir, photo_dir)
-            )
+            these_power_boxes = get_power_boxes_array(os.path.join(data_dir, photo_dir))
             if these_power_boxes is not None:
                 print("these", these_power_boxes.shape)
                 all_typelines.append(these_power_boxes)
@@ -83,12 +81,11 @@ if __name__ == "__main__":
 
         # for i in range(10):
         #     index = random.randint(0, all_typelines.shape[0])
-        #     print(index)    
+        #     print(index)
         #     plt.imshow(all_typelines[index].reshape((75, 678, 4)))
         #     plt.show()
 
         print("calculating mask for", name, all_typelines.shape)
-
 
         # original_shape = all_typelines.shape
         # colors_arr = all_typelines.reshape(
@@ -110,8 +107,7 @@ if __name__ == "__main__":
 
         merged = composite(all_typelines)
 
-
         print(merged.shape, merged.min(), merged.max())
         # plt.imshow(mask)
         # plt.show()
-        imsave(os.path.join(out_dir, name+'_merged.png'), merged)
+        imsave(os.path.join(out_dir, name + "_merged.png"), merged)
