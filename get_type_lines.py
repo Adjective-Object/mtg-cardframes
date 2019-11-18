@@ -6,6 +6,7 @@ import matplotlib.pyplot as plt
 import random
 from regions import TYPELINE_X, TYPELINE_Y, TYPELINE_W, TYPELINE_H
 from cleaning_cellular_automata import cleaning_cellular_automata
+from composite import composite
 
 
 def get_all_typelines_array(images_dir_path):
@@ -89,7 +90,7 @@ if __name__ == "__main__":
         #     plt.show()
 
         print("calculating mask for", name, all_typelines.shape)
-        merged = np.percentile(all_typelines, 70, axis=0)
+        merged = composite(all_typelines)
         print(merged.shape, merged.min(), merged.max())
         # plt.imshow(mask)
         # plt.show()

@@ -101,7 +101,7 @@ if __name__ == "__main__":
     )
 
     colors = split_by_colors_with_duals(data_dirs)
-    merged_or_composed = "composed"
+    merged_or_cleaned = "cleaned"
     print("colors", json.dumps(colors, indent=2))
     for color, border_paths in colors.items():
         simple_color = "multi" if "+" in color else color
@@ -109,7 +109,7 @@ if __name__ == "__main__":
         print("#################")
         print("##### color!", color)
 
-        simple_color_name = "%s_%s.png" % (simple_color, merged_or_composed)
+        simple_color_name = "%s_%s.png" % (simple_color, merged_or_cleaned)
         title_line = title_lines.get_expanded_image(simple_color_name)
         type_line = type_lines.get_expanded_image(simple_color_name)
         powerbox = powerboxes.get_expanded_image(simple_color_name)
@@ -120,7 +120,7 @@ if __name__ == "__main__":
             )
 
             creaturetype = "creature" if is_creature else "noncreature"
-            text_body_name = "%s_%s_%s.png" % (color, creaturetype, merged_or_composed)
+            text_body_name = "%s_%s_%s.png" % (color, creaturetype, merged_or_cleaned)
             text_body = text_bodies.get_expanded_image(text_body_name)
 
             print("processing", border_path)

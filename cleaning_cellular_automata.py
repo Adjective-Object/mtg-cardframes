@@ -144,7 +144,7 @@ def cleaning_cellular_automata(cropped_text):
 
         # push values away from center, then clamp
         # v = 1 - np.abs(np.power(1 - scores, 3))
-        contrasting = np.abs(contrast_filter_scores) > 0.7
+        contrasting = np.abs(contrast_filter_scores) > 0.6
         near_light = (
             (near_light_filter_scores / near_light_filter_scores.max()) > 0.4
         ).astype(np.uint8)
@@ -163,14 +163,15 @@ def cleaning_cellular_automata(cropped_text):
         update_mask = contrasting  # * near_light # * dark
         update_mask = np.clip(update_mask, 0, 1).astype(np.uint8)
 
-        plt.subplot(9, 2, 1, title="contrasting")
-        plt.imshow(contrasting, cmap=plt.get_cmap("coolwarm"), vmin=-1, vmax=1)
-        plt.subplot(9, 2, 2, title="near_light")
-        plt.imshow(near_light, cmap=plt.get_cmap("coolwarm"), vmin=-1, vmax=1)
-        plt.subplot(9, 2, 3, title="dark")
-        plt.imshow(dark, cmap=plt.get_cmap("coolwarm"), vmin=-1, vmax=1)
-        plt.subplot(9, 2, 4, title="update_mask")
-        plt.imshow(update_mask, cmap=plt.get_cmap("coolwarm"), vmin=-1, vmax=1)
+        if __name__ == "__main__":
+            plt.subplot(9, 2, 1, title="contrasting")
+            plt.imshow(contrasting, cmap=plt.get_cmap("coolwarm"), vmin=-1, vmax=1)
+            plt.subplot(9, 2, 2, title="near_light")
+            plt.imshow(near_light, cmap=plt.get_cmap("coolwarm"), vmin=-1, vmax=1)
+            plt.subplot(9, 2, 3, title="dark")
+            plt.imshow(dark, cmap=plt.get_cmap("coolwarm"), vmin=-1, vmax=1)
+            plt.subplot(9, 2, 4, title="update_mask")
+            plt.imshow(update_mask, cmap=plt.get_cmap("coolwarm"), vmin=-1, vmax=1)
 
         # print(
         #     'ahh',
@@ -213,23 +214,26 @@ def cleaning_cellular_automata(cropped_text):
             new_colors.std(),
         )
 
-        plt.subplot(9, 2, 5, title="update_mask")
-        plt.imshow(update_mask, cmap=plt.get_cmap("coolwarm"), vmin=-1, vmax=1)
-        plt.subplot(9, 2, 6, title="adj_nondark_cts")
-        plt.imshow(
-            adj_nondark_cts,
-            cmap=plt.get_cmap("YlGn"),
-            vmin=0,
-            vmax=adj_nondark_cts.max(),
-        )
-        plt.subplot(9, 2, 7, title="use_new_state_mask")
-        plt.imshow(use_new_state_mask, cmap=plt.get_cmap("coolwarm"), vmin=-1, vmax=1)
-        plt.subplot(9, 2, 8, title="new_colors")
-        plt.imshow(new_colors.astype(np.float) / new_colors.max())
-        plt.subplot(9, 2, 9, title="state")
-        plt.imshow(state)
         # if(i == 29):
-        # plt.show()
+        if __name__ == "__main__":
+            plt.subplot(9, 2, 5, title="update_mask")
+            plt.imshow(update_mask, cmap=plt.get_cmap("coolwarm"), vmin=-1, vmax=1)
+            plt.subplot(9, 2, 6, title="adj_nondark_cts")
+            plt.imshow(
+                adj_nondark_cts,
+                cmap=plt.get_cmap("YlGn"),
+                vmin=0,
+                vmax=adj_nondark_cts.max(),
+            )
+            plt.subplot(9, 2, 7, title="use_new_state_mask")
+            plt.imshow(
+                use_new_state_mask, cmap=plt.get_cmap("coolwarm"), vmin=-1, vmax=1
+            )
+            plt.subplot(9, 2, 8, title="new_colors")
+            plt.imshow(new_colors.astype(np.float) / new_colors.max())
+            plt.subplot(9, 2, 9, title="state")
+            plt.imshow(state)
+            # plt.show()
 
         print("new state mask:", np.histogram(use_new_state_mask.flatten()))
 
@@ -260,18 +264,16 @@ def cleaning_cellular_automata(cropped_text):
     print(
         state.dtype, all_updates_mask.dtype, cropped_text.dtype,
     )
-    finished_state = state * (1 - all_updates_mask) + cropped_text * all_updates_mask
+    finished_state = state * all_updates_mask + cropped_text * (1 - all_updates_mask)
 
-    finished_state = np.clip(finished_state, 0, 255)
+    finished_state = np.clip(finished_state, 0, 255).astype(np.uint8)
 
     plt.subplot(2, 2, 1, title="original")
     plt.imshow(cropped_text)
-    plt.subplot(2, 2, 2, title="finished_state")
+    plt.subplot(2, 2, 2, title="state")
+    plt.imshow(state)
+    plt.subplot(2, 2, 3, title="finished_state")
     plt.imshow(finished_state)
-    plt.subplot(2, 2, 3, title="delta")
-    plt.imshow(
-        (state - cropped_text / 255), cmap=plt.get_cmap("coolwarm"), vmin=-1, vmax=1
-    )
     plt.subplot(2, 2, 4, title="all_updates_mask")
     plt.imshow(
         all_updates_mask.reshape(
@@ -281,12 +283,13 @@ def cleaning_cellular_automata(cropped_text):
         vmin=0,
         vmax=1,
     )
-    # plt.show()
+    if __name__ == "__main__":
+        plt.show()
 
     return finished_state
 
 
 if __name__ == "__main__":
     # image = imread('./text_bodies/c:w+c:b_creature_merged.png')
-    image = imread("./type_lines/c:r_merged.png")
+    image = imread("./text_bodies/c:r+c:u_creature_merged.png")
     cleaning_cellular_automata(image)

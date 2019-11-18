@@ -158,8 +158,6 @@ def remove_collectors_type(card, is_powerless=False):
     # plt.show()
     mean_color = np.mean(t.reshape((w * h, 4)), axis=0)
 
-    print("mean color", mean_color)
-
     # assignign black to here
     x = 37
     y = 990
@@ -190,11 +188,10 @@ def process_photos_dir(photos_dir, out_file):
 
     del all_photos
     remove_card_art(out_img, is_legend=("--t:legend:" not in photos_dir))
+    is_powerless = "--type:creature" in photos_dir or "type:creature" not in photos_dir
+    # print("POWERLESS??:", photos_dir, is_powerless)
     remove_collectors_type(
-        out_img,
-        is_powerless=(
-            "--type:creature" in photos_dir or "type:creature" not in photos_dir
-        ),
+        out_img, is_powerless=is_powerless,
     )
 
     print("out_img", out_img.dtype, out_img.min(), out_img.max())
@@ -207,7 +204,7 @@ def main():
         print_usage()
         sys.exit(1)
 
-    process_photos_dir(sys.argv[0], "single-run.png")
+    process_photos_dir(sys.argv[1], "single-run.png")
 
 
 if __name__ == "__main__":
