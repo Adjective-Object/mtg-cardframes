@@ -7,6 +7,8 @@ import scipy.stats
 import random
 from skimage import color
 from composite import composite
+from regions import POWERBOX_X, POWERBOX_Y, POWERBOX_W, POWERBOX_H
+from cleaning_cellular_automata import cleaning_cellular_automata
 
 
 def get_power_boxes_array(images_dir_path):
@@ -15,7 +17,11 @@ def get_power_boxes_array(images_dir_path):
         print("loading from %s" % all_photos_typelines_file)
         all_photos = create_all_photos_array_from_directory(
             images_dir_path,
-            transform=lambda arr: arr[915 : 915 + 78, 563 : 563 + 151, :],
+            transform=lambda arr: arr[
+                POWERBOX_Y : POWERBOX_Y + POWERBOX_H,
+                POWERBOX_X : POWERBOX_X + POWERBOX_W,
+                :,
+            ],
         )
         if all_photos is not None:
             print(all_photos.shape)
@@ -111,3 +117,5 @@ if __name__ == "__main__":
         # plt.imshow(mask)
         # plt.show()
         imsave(os.path.join(out_dir, name + "_merged.png"), merged)
+        cleaned = cleaning_cellular_automata(merged)
+        imsave(os.path.join(out_dir, name + "_cleaned.png"), cleaned)

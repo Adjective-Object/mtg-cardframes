@@ -34,7 +34,7 @@ for color_flag in color_flags + all_color_flag_combos:
             "t:legend type:creature -type:enchantment",
             "type:creature type:enchantment",
             "type:land",
-            "type:sorcery type:instant type:enchantment -type:creature",
+            "(type:sorcery or type:instant or type:enchantment) -type:creature",
         ]:
             # download
             search_term = " ".join(

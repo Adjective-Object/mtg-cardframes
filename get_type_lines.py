@@ -4,6 +4,8 @@ import numpy as np
 from imageio import imread, imsave
 import matplotlib.pyplot as plt
 import random
+from regions import TYPELINE_X, TYPELINE_Y, TYPELINE_W, TYPELINE_H
+from cleaning_cellular_automata import cleaning_cellular_automata
 
 
 def get_all_typelines_array(images_dir_path):
@@ -14,7 +16,11 @@ def get_all_typelines_array(images_dir_path):
         print("loading from %s" % all_photos_typelines_file)
         all_photos = create_all_photos_array_from_directory(
             images_dir_path,
-            transform=lambda arr: arr[594 : 594 + 45, 56 : 56 + 632 :, :],
+            transform=lambda arr: arr[
+                TYPELINE_Y : TYPELINE_Y + TYPELINE_H,
+                TYPELINE_X : TYPELINE_X + TYPELINE_W,
+                :,
+            ],
         )
         if all_photos is not None:
             print("saving to for future runs to %s" % all_photos_typelines_file)
@@ -88,3 +94,6 @@ if __name__ == "__main__":
         # plt.imshow(mask)
         # plt.show()
         imsave(os.path.join(out_dir, name + "_merged.png"), merged)
+
+        cleaned = cleaning_cellular_automata(merged)
+        imsave(os.path.join(out_dir, name + "_cleaned.png"), cleaned)

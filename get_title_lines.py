@@ -5,6 +5,8 @@ from imageio import imread, imsave
 import matplotlib.pyplot as plt
 import random
 from composite import composite
+from regions import TITLEBOX_X, TITLEBOX_Y, TITLEBOX_W, TITLEBOX_H
+from cleaning_cellular_automata import cleaning_cellular_automata
 
 
 def get_all_title_lines_array(images_dir_path):
@@ -14,7 +16,12 @@ def get_all_title_lines_array(images_dir_path):
     if not os.path.isfile(all_photos_title_lines_file):
         print("loading from %s" % all_photos_title_lines_file)
         all_photos = create_all_photos_array_from_directory(
-            images_dir_path, transform=lambda arr: arr[56 : 56 + 48, 54 : 54 + 637 :, :]
+            images_dir_path,
+            transform=lambda arr: arr[
+                TITLEBOX_Y : TITLEBOX_Y + TITLEBOX_H,
+                TITLEBOX_X : TITLEBOX_X + TITLEBOX_W,
+                :,
+            ],
         )
         if all_photos is not None:
             print("saving to for future runs to %s" % all_photos_title_lines_file)
@@ -90,3 +97,6 @@ if __name__ == "__main__":
         # plt.imshow(mask)
         # plt.show()
         imsave(os.path.join(out_dir, name + "_merged.png"), merged)
+
+        cleaned = cleaning_cellular_automata(merged)
+        imsave(os.path.join(out_dir, name + "_cleaned.png"), cleaned)

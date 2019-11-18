@@ -29,6 +29,7 @@ def create_all_photos_array_from_directory(directory_path, limit=None, transform
         im_path = os.path.join(directory_path, f)
         print("reading", im_path)
         image = imread(im_path)
+        print("read as", image.dtype)
         if transform:
             image = transform(image)
         images.append(image)
@@ -47,7 +48,7 @@ def get_all_photos_array(images_dir_path):
         all_photos = create_all_photos_array_from_directory(images_dir_path, limit=30)
         if all_photos is not None:
             print("saving to for future runs to %s" % all_photos_file)
-            all_photos = all_photos / 255
+            all_photos = all_photos
             np.save(all_photos_file, all_photos)
         return all_photos
     else:
@@ -136,15 +137,15 @@ def remove_card_art(card, is_legend=False):
 
     if is_legend:
         x -= 1
-        y -= 1
+        y -= 2
         w += 2
-        h += 2
+        h += 3
 
     card[y : y + h, x : x + w, 3] = 0.1
     card[y + 1 : y + h - 2, x + 1 : x + w - 2, 3] = 0
 
 
-def remove_collectors_type(card):
+def remove_collectors_type(card, is_powerless=False):
 
     # sampling black from here
     x = 37
@@ -161,7 +162,7 @@ def remove_collectors_type(card):
 
     # assignign black to here
     x = 37
-    y = 991
+    y = 990
     w = 682
     h = 24
     card[y : y + h, x : x + w, :] = mean_color
@@ -171,17 +172,32 @@ def remove_collectors_type(card):
     h = 22
     card[y : y + h, x : x + w, :] = mean_color
 
+    if is_powerless:
+        x = 439
+        y = 969
+        w = 266
+        h = 39
+        card[y : y + h, x : x + w, :] = mean_color
+
 
 def process_photos_dir(photos_dir, out_file):
     all_photos = get_all_photos_array(photos_dir)
     if all_photos is None:
         return
+    print("all_photos", all_photos.dtype, all_photos.min(), all_photos.max())
 
-    out_img = composite(all_title_lines)
+    out_img = composite(all_photos)
 
     del all_photos
     remove_card_art(out_img, is_legend=("--t:legend:" not in photos_dir))
-    remove_collectors_type(out_img)
+    remove_collectors_type(
+        out_img,
+        is_powerless=(
+            "--type:creature" in photos_dir or "type:creature" not in photos_dir
+        ),
+    )
+
+    print("out_img", out_img.dtype, out_img.min(), out_img.max())
 
     imsave(out_file, out_img)
 
