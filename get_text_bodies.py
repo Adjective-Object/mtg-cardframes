@@ -96,4 +96,4 @@ if __name__ == "__main__":
             print(merged.shape, merged.min(), merged.max())
             # plt.imshow(mask)
             # plt.show()
-            imsave(os.path.join(out_dir, name + "_cleaned_merged.png"), merged)
+            imsave(os.path.join(out_dir, name + ("_creature" if is_creature else "_noncreature") + "_cleaned_merged.png"), merged)

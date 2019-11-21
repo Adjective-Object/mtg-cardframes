@@ -97,23 +97,34 @@ near_light_score_matricies = [
     # ]]),
 ]
 
-adjacent_colors_filter = np.array(
+adjacent_ct_filter = np.array(
     [
-        [[1, 1, 1, 1], [1, 1, 1, 1], [1, 1, 1, 1], [1, 1, 1, 1], [1, 1, 1, 1]],
-        [[1, 1, 1, 1], [1, 1, 1, 1], [1, 1, 1, 1], [1, 1, 1, 1], [1, 1, 1, 1]],
-        [[1, 1, 1, 1], [1, 1, 1, 1], [0, 0, 0, 0], [1, 1, 1, 1], [1, 1, 1, 1]],
-        [[1, 1, 1, 1], [1, 1, 1, 1], [1, 1, 1, 1], [1, 1, 1, 1], [1, 1, 1, 1]],
-        [[1, 1, 1, 1], [1, 1, 1, 1], [1, 1, 1, 1], [1, 1, 1, 1], [1, 1, 1, 1]],
+        [0, 0, 1, 0, 0],
+        [0, 1, 1, 1, 0],
+        [1, 1, 0, 1, 1],
+        [0, 1, 1, 1, 0],
+        [0, 0, 1, 0, 0],
     ]
 )
 
-adjacent_ct_filter = np.array(
+adjacent_colors_filter = np.array(
     [
-        [1, 1, 1, 1, 1],
-        [1, 1, 1, 1, 1],
-        [1, 1, 0, 1, 1],
-        [1, 1, 1, 1, 1],
-        [1, 1, 1, 1, 1],
+        [[0] * 4, [0] * 4, [1] * 4, [0] * 4, [0] * 4],
+        [[0] * 4, [1] * 4, [1] * 4, [1] * 4, [0] * 4],
+        [[1] * 4, [1] * 4, [0] * 4, [1] * 4, [1] * 4],
+        [[0] * 4, [1] * 4, [1] * 4, [1] * 4, [0] * 4],
+        [[0] * 4, [0] * 4, [1] * 4, [0] * 4, [0] * 4],
+    ]
+)
+
+
+near_different_filter = np.array(
+    [
+        [0, 1, 1, 1, 0],
+        [1, 2, 2, 2, 1],
+        [1, 2, 3, 2, 1],
+        [1, 2, 2, 2, 1],
+        [0, 1, 1, 1, 0],
     ]
 )
 
@@ -137,9 +148,13 @@ def cleaning_cellular_automata(cropped_text):
     b_std = b.std()
 
 
-    L_WEIGHT = 10
-    A_WEIGHT = 3
-    B_WEIGHT = 3
+    L_COLOR_DISTANCE_SCALE = 15
+    A_COLOR_DISTANCE_SCALE = 1
+    B_COLOR_DISTANCE_SCALE = 1
+
+    L_WEIGHT = 5
+    A_WEIGHT = 2
+    B_WEIGHT = 2
 
     d_print("l", 'med', l_med, 'std', l_std, 'WEIGHTED', l_std * L_WEIGHT)
     d_print("a", 'med', a_med, 'std', a_std, 'WEIGHTED', a_std * A_WEIGHT)
@@ -151,7 +166,7 @@ def cleaning_cellular_automata(cropped_text):
     PERMITTED_DIFFERENCE_IN_STD_A = 1.5
     PERMITTED_DIFFERENCE_IN_STD_B = 1.9
 
-    NORMALZIED_WEIGHTED_COLOR_DISTANCE_THRESHOLD = 1
+    NORMALZIED_WEIGHTED_COLOR_DISTANCE_THRESHOLD = 3
 
     for i in range(30):
         state_lab = color.rgb2lab(color.rgba2rgb(state)) / 100
@@ -174,15 +189,15 @@ def cleaning_cellular_automata(cropped_text):
         different_b = (np.abs(state_lab[:,:,2] - b_med) > (b_std * PERMITTED_DIFFERENCE_IN_STD_B))
         color_distance = np.sqrt(
             np.power(
-                np.abs(state_lab[:,:,0] - l_med) * 5,
+                np.abs(state_lab[:,:,0] - l_med) * L_COLOR_DISTANCE_SCALE,
                 2,
             ) +
             np.power(
-                np.abs(state_lab[:,:,1] - a_med) * 2,
+                np.abs(state_lab[:,:,1] - a_med) * A_COLOR_DISTANCE_SCALE,
                 2,
             ) +
             np.power(
-                np.abs(state_lab[:,:,2] - b_med) * 5,
+                np.abs(state_lab[:,:,2] - b_med) * B_COLOR_DISTANCE_SCALE,
                 2,
             ),
         )
@@ -196,6 +211,14 @@ def cleaning_cellular_automata(cropped_text):
             color_distance > NORMALZIED_WEIGHTED_COLOR_DISTANCE_THRESHOLD
         ).astype(np.uint8)
 
+        near_different = (scipy.ndimage.filters.convolve(different, near_different_filter, mode="wrap") > 5).astype(np.uint8)
+
+        difference_mask = near_different
+        print("DIFF MASK!", np.sum(near_different))
+        if np.sum(near_different) < 100:
+            print("USE ACTUAL DIFFERENT")
+            difference_mask = different 
+
 
         d_print(contrasting.shape, different.shape)
         d_print(
@@ -205,22 +228,24 @@ def cleaning_cellular_automata(cropped_text):
             different.max(),
         )
 
-        update_mask = contrasting  # * near_light # * dark
+        update_mask = contrasting * difference_mask # * near_light # * dark
         update_mask = np.clip(update_mask, 0, 1).astype(np.uint8)
 
         if __name__ == "__main__":
             plt.subplot(4, 3, 1, title="contrasting")
             plt.imshow(contrasting, cmap=plt.get_cmap("coolwarm"), vmin=-1, vmax=1)
-            plt.subplot(4, 3, 2, title="different_l")
-            plt.imshow(different_l, cmap=plt.get_cmap("coolwarm"), vmin=-1, vmax=1)
-            plt.subplot(4, 3, 3, title="different_a")
-            plt.imshow(different_a, cmap=plt.get_cmap("coolwarm"), vmin=-1, vmax=1)
-            plt.subplot(4, 3, 4, title="different_b")
+            # plt.subplot(4, 3, 2, title="different_l")
+            # plt.imshow(different_l, cmap=plt.get_cmap("coolwarm"), vmin=-1, vmax=1)
+            # plt.subplot(4, 3, 3, title="different_a")
+            # plt.imshow(different_a, cmap=plt.get_cmap("coolwarm"), vmin=-1, vmax=1)
+            # plt.subplot(4, 3, 4, title="different_b")
             plt.imshow(different_b, cmap=plt.get_cmap("coolwarm"), vmin=-1, vmax=1)
-            plt.subplot(4, 3, 12, title="color_distance")
+            plt.subplot(4, 3, 2, title="color_distance")
             plt.imshow(color_distance, cmap=plt.get_cmap("coolwarm"), vmin=0)
-            plt.subplot(4, 3, 5, title="different")
+            plt.subplot(4, 3, 3, title="different")
             plt.imshow(different, cmap=plt.get_cmap("coolwarm"), vmin=-1, vmax=1)
+            plt.subplot(4, 3, 4, title="near_different")
+            plt.imshow(near_different, cmap=plt.get_cmap("coolwarm"), vmin=-1, vmax=1)
             plt.subplot(4, 3, 6, title="update_mask")
             plt.imshow(update_mask, cmap=plt.get_cmap("coolwarm"), vmin=-1, vmax=1)
 
@@ -234,13 +259,13 @@ def cleaning_cellular_automata(cropped_text):
         for j in range(4):
             adj_colors_sum[:, :, j] = scipy.ndimage.filters.convolve(
                 # filter out colors we don't consider 'dark' from the adj colors sum
-                state[:, :, j] * (1 - different),
+                state[:, :, j] * (1 - difference_mask),
                 adjacent_ct_filter,
                 mode="wrap",
             )
 
         adj_nondifferent_counts = scipy.ndimage.filters.convolve(
-            (1 - different), adjacent_ct_filter, mode="wrap"
+            (1 - difference_mask), adjacent_ct_filter, mode="wrap"
         )
 
         use_new_state_mask = (update_mask) * (adj_nondifferent_counts != 0).astype(np.uint8)
@@ -282,12 +307,13 @@ def cleaning_cellular_automata(cropped_text):
             plt.imshow(new_colors.astype(np.float) / new_colors.max())
             plt.subplot(4, 3, 10, title="state")
             plt.imshow(state)
-            plt.show()
+            # plt.show()
 
         d_print("new state mask:", np.histogram(use_new_state_mask.flatten()))
         d_print(use_new_state_mask.min(), use_new_state_mask.max())
 
         if use_new_state_mask.min() == use_new_state_mask.max() == 0:
+            print("early exit")
             break
 
         all_updates_mask = np.clip(
