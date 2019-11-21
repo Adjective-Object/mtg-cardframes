@@ -85,6 +85,17 @@ if __name__ == "__main__":
 
         all_title_lines = np.concatenate(all_title_lines, axis=0)
 
+        out_tmp_subdir = os.path.join(out_dir, name)
+        if not os.path.isdir(out_tmp_subdir):
+            os.mkdir(out_tmp_subdir)
+        for i in range(0, len(all_title_lines)):
+            print('cleaing input %s / %s' % (i + 1 , len(all_title_lines) + 1))
+            cleaned = cleaning_cellular_automata(all_title_lines[i].reshape((
+                all_title_lines.shape[1:]
+            )))
+            imsave(os.path.join(out_tmp_subdir, "cleaned_%s.png" % i), cleaned)
+            all_title_lines[i] = cleaned
+
         # for i in range(10):
         #     index = random.randint(0, all_title_lines.shape[0])
         #     print(index)
@@ -96,7 +107,4 @@ if __name__ == "__main__":
         print(merged.shape, merged.min(), merged.max())
         # plt.imshow(mask)
         # plt.show()
-        imsave(os.path.join(out_dir, name + "_merged.png"), merged)
-
-        cleaned = cleaning_cellular_automata(merged)
-        imsave(os.path.join(out_dir, name + "_cleaned.png"), cleaned)
+        imsave(os.path.join(out_dir, name + "_cleaned_merged.png"), merged)

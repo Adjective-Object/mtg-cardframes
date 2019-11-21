@@ -74,27 +74,38 @@ if __name__ == "__main__":
 
     for name, photos_dirs in colors_dict.items():
         print("collecting %s power boxes from" % name, photos_dirs)
-        all_typelines = []
+        all_power_boxes = []
         for photo_dir in photos_dirs:
             these_power_boxes = get_power_boxes_array(os.path.join(data_dir, photo_dir))
             if these_power_boxes is not None:
                 print("these", these_power_boxes.shape)
-                all_typelines.append(these_power_boxes)
+                all_power_boxes.append(these_power_boxes)
 
-        # print("calculating mask for", name, all_typelines)
+        # print("calculating mask for", name, all_power_boxes)
 
-        all_typelines = np.concatenate(all_typelines, axis=0)
+        all_power_boxes = np.concatenate(all_power_boxes, axis=0)
+
+        out_tmp_subdir = os.path.join(out_dir, name)
+        if not os.path.isdir(out_tmp_subdir):
+            os.mkdir(out_tmp_subdir)
+        for i in range(0, len(all_power_boxes)):
+            print('cleaing input %s / %s' % (i + 1 , len(all_power_boxes) + 1))
+            cleaned = cleaning_cellular_automata(all_power_boxes[i].reshape((
+                all_power_boxes.shape[1:]
+            )))
+            imsave(os.path.join(out_tmp_subdir, "cleaned_%s.png" % i), cleaned)
+            all_power_boxes[i] = cleaned
 
         # for i in range(10):
-        #     index = random.randint(0, all_typelines.shape[0])
+        #     index = random.randint(0, all_power_boxes.shape[0])
         #     print(index)
-        #     plt.imshow(all_typelines[index].reshape((75, 678, 4)))
+        #     plt.imshow(all_power_boxes[index].reshape((75, 678, 4)))
         #     plt.show()
 
-        print("calculating mask for", name, all_typelines.shape)
+        print("calculating mask for", name, all_power_boxes.shape)
 
-        # original_shape = all_typelines.shape
-        # colors_arr = all_typelines.reshape(
+        # original_shape = all_power_boxes.shape
+        # colors_arr = all_power_boxes.reshape(
         #     original_shape[0],
         #     original_shape[1] * original_shape[2],
         #     4
@@ -111,11 +122,11 @@ if __name__ == "__main__":
         #     original_shape[1:]
         # )
 
-        merged = composite(all_typelines)
+        merged = composite(all_power_boxes)
 
         print(merged.shape, merged.min(), merged.max())
         # plt.imshow(mask)
         # plt.show()
-        imsave(os.path.join(out_dir, name + "_merged.png"), merged)
-        cleaned = cleaning_cellular_automata(merged)
-        imsave(os.path.join(out_dir, name + "_cleaned.png"), cleaned)
+        imsave(os.path.join(out_dir, name + "_cleaned_merged.png"), merged)
+        # cleaned = cleaning_cellular_automata(merged)
+        # imsave(os.path.join(out_dir, name + "_cleaned.png"), cleaned)
