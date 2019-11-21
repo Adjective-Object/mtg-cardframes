@@ -2,6 +2,7 @@
 // @ts-check
 const fetch = require("node-fetch");
 const { writeFileSync } = require("fs");
+const { isDir } = require('path');
 
 /**
  *
@@ -55,8 +56,9 @@ async function main() {
   const outFileName = `./data/${escapedQuery}.json`;
 
   const cards = await getAllCardsJson(queryString);
-  console.log("writing", cards.length, "to", outFileName);
-  writeFileSync(outFileName, JSON.stringify(cards), "utf-8");
+  for(let card of cards) {
+    if(not)
+  } 
 }
 
 main();

@@ -1,5 +1,7 @@
 import numpy as np
+import sys
 from skimage import color
+from imageio import imread, imwrite
 
 
 def composite(a):
@@ -21,3 +23,16 @@ def composite(a):
     with_alpha = np.concatenate((x, m), axis=2)
 
     return with_alpha.astype(np.uint8)
+
+if __name__ == "__main__":
+    if len(sys.argv) < 2:
+        print("Usage: %s <input_file_names> <output_file_name>")
+        exit(1)
+    
+    images = []
+    for f in sys.argv[1:-1]:
+        images.append(imread(f))
+    
+    all_images_np_arr = composite(np.concatenate(images), axis=0)
+    out = composite(all_images_np_arr)
+    imwrite(sys.argv[-1], out)

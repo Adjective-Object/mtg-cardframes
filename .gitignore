@@ -10,3 +10,6 @@ type_lines
 borders
 text_bodies
 composed_tiff
+card_cache
+queries/*/*/*
+all_cards
