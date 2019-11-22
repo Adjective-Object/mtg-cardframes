@@ -3,6 +3,7 @@
 import os, sys, json, urllib.parse
 import requests
 import config
+from time import sleep
 
 
 def save_card_if_new(card):
@@ -30,8 +31,11 @@ def query_scryfall(query_string):
     cards = []
     while page_url:
         sys.stderr.write("making request to scryfall for page %s\n" % page_url)
+        sleep(0.2)
         response = requests.get(page_url)
-        if response.status_code != 200:
+        if response.status_code == 404:
+            break
+        elif response.status_code != 200:
             raise Exception("got bad response from server: " + response.text)
 
         response_body = response.json()

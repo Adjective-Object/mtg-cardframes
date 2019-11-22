@@ -1,0 +1,1 @@
+c:m -m:{w/u} -m:{w/b} -m:{w/r} -m:{w/g} -m:{u/b} -m:{u/r} -m:{u/g} -m:{b/r} -m:{b/g} -m:{r/g}]

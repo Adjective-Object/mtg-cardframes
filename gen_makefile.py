@@ -30,7 +30,7 @@ card_cache/%/cleaned/{region_name}.png: card_cache/%/raw/{region_name}.png ./cle
 # get query result from scryfall and cache 
 queries/{region_name}/%/ids.txt: queries/{region_name}/%.txt
 	mkdir -p queries/{region_name}/$*
-	./query-scryfall.py "$$(cat $<)" > $@
+	./query_scryfall.py "$$(cat $<)" > $@
 
     """.format(
         region_name=region_name, input_prefix="cleaned" if region["clean"] else "raw",
