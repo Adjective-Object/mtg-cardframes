@@ -1,0 +1,1 @@
+-id:r id:u -id:g -id:w -id:b -id:c  (t:sorcery or t:instant or t:enchantment) -t:legend -t:enchantment wm:izzet frame:2015 rarity<rare set:dom,grn,m19,m20,mh1,c18,gk

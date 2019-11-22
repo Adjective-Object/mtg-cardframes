@@ -5,11 +5,13 @@ from imageio import imread
 from skimage import color
 
 contrast_score_matricies = [
-    np.array([
-        [[-1,-1,-1], [-1,-1,-1], [-1,-1,-1]],
-        [[-1,-1,-1], [8,8,8], [-1,-1,-1]],
-        [[-1,-1,-1], [-1,-1,-1], [-1,-1,-1]],
-    ]),
+    np.array(
+        [
+            [[-1, -1, -1], [-1, -1, -1], [-1, -1, -1]],
+            [[-1, -1, -1], [8, 8, 8], [-1, -1, -1]],
+            [[-1, -1, -1], [-1, -1, -1], [-1, -1, -1]],
+        ]
+    ),
     # np.array([
     #     [-1],
     #     [5],
@@ -128,25 +130,26 @@ near_different_filter = np.array(
     ]
 )
 
+
 def d_print(*args):
     if __name__ == "__main__":
         print(*args)
+
 
 def cleaning_cellular_automata(cropped_text):
     state = cropped_text / 255
     single_color_channel_shape = (state.shape[0], state.shape[1], 1)
 
     input_lab = color.rgb2lab(color.rgba2rgb(cropped_text / 255)) / 100
-    l = input_lab[:,:,0]
-    a = input_lab[:,:,1]
-    b = input_lab[:,:,2]
+    l = input_lab[:, :, 0]
+    a = input_lab[:, :, 1]
+    b = input_lab[:, :, 2]
     l_med = np.median(l)
     a_med = np.median(a)
     b_med = np.median(b)
     l_std = l.std()
     a_std = a.std()
     b_std = b.std()
-
 
     L_COLOR_DISTANCE_SCALE = 15
     A_COLOR_DISTANCE_SCALE = 1
@@ -156,9 +159,9 @@ def cleaning_cellular_automata(cropped_text):
     A_WEIGHT = 2
     B_WEIGHT = 2
 
-    d_print("l", 'med', l_med, 'std', l_std, 'WEIGHTED', l_std * L_WEIGHT)
-    d_print("a", 'med', a_med, 'std', a_std, 'WEIGHTED', a_std * A_WEIGHT)
-    d_print("b", 'med', b_med, 'std', b_std, 'WEIGHTED', b_std * B_WEIGHT)
+    d_print("l", "med", l_med, "std", l_std, "WEIGHTED", l_std * L_WEIGHT)
+    d_print("a", "med", a_med, "std", a_std, "WEIGHTED", a_std * A_WEIGHT)
+    d_print("b", "med", b_med, "std", b_std, "WEIGHTED", b_std * B_WEIGHT)
 
     all_updates_mask = np.zeros(single_color_channel_shape)
 
@@ -175,60 +178,68 @@ def cleaning_cellular_automata(cropped_text):
 
         for scoring_matrix in contrast_score_matricies:
             d_print(state_lab.shape, scoring_matrix.shape)
-            result = np.sum(np.abs(
-                scipy.ndimage.filters.convolve(state_lab, scoring_matrix, mode="wrap")
-            ), axis=2)
+            result = np.sum(
+                np.abs(
+                    scipy.ndimage.filters.convolve(
+                        state_lab, scoring_matrix, mode="wrap"
+                    )
+                ),
+                axis=2,
+            )
             d_print(result.shape, contrast_filter_scores.shape)
             contrast_filter_scores += result
 
         # push values away from center, then clamp
         # v = 1 - np.abs(np.power(1 - scores, 3))
         contrasting = np.abs(contrast_filter_scores) > 0.6
-        different_l = (np.abs(state_lab[:,:,0] - l_med) > (l_std * PERMITTED_DIFFERENCE_IN_STD_L))
-        different_a = (np.abs(state_lab[:,:,1] - a_med) > (a_std * PERMITTED_DIFFERENCE_IN_STD_A))
-        different_b = (np.abs(state_lab[:,:,2] - b_med) > (b_std * PERMITTED_DIFFERENCE_IN_STD_B))
-        color_distance = np.sqrt(
-            np.power(
-                np.abs(state_lab[:,:,0] - l_med) * L_COLOR_DISTANCE_SCALE,
-                2,
-            ) +
-            np.power(
-                np.abs(state_lab[:,:,1] - a_med) * A_COLOR_DISTANCE_SCALE,
-                2,
-            ) +
-            np.power(
-                np.abs(state_lab[:,:,2] - b_med) * B_COLOR_DISTANCE_SCALE,
-                2,
-            ),
+        different_l = np.abs(state_lab[:, :, 0] - l_med) > (
+            l_std * PERMITTED_DIFFERENCE_IN_STD_L
         )
-        d_print("color_distance", color_distance.shape, color_distance.min(), color_distance.max())
+        different_a = np.abs(state_lab[:, :, 1] - a_med) > (
+            a_std * PERMITTED_DIFFERENCE_IN_STD_A
+        )
+        different_b = np.abs(state_lab[:, :, 2] - b_med) > (
+            b_std * PERMITTED_DIFFERENCE_IN_STD_B
+        )
+        color_distance = np.sqrt(
+            np.power(np.abs(state_lab[:, :, 0] - l_med) * L_COLOR_DISTANCE_SCALE, 2,)
+            + np.power(np.abs(state_lab[:, :, 1] - a_med) * A_COLOR_DISTANCE_SCALE, 2,)
+            + np.power(np.abs(state_lab[:, :, 2] - b_med) * B_COLOR_DISTANCE_SCALE, 2,),
+        )
+        d_print(
+            "color_distance",
+            color_distance.shape,
+            color_distance.min(),
+            color_distance.max(),
+        )
         # different = np.bitwise_or(
         #     different_l,
         #     different_a,
         #     different_b,
         # ).astype(np.uint8)
-        different = ( 
+        different = (
             color_distance > NORMALZIED_WEIGHTED_COLOR_DISTANCE_THRESHOLD
         ).astype(np.uint8)
 
-        near_different = (scipy.ndimage.filters.convolve(different, near_different_filter, mode="wrap") > 5).astype(np.uint8)
+        near_different = (
+            scipy.ndimage.filters.convolve(
+                different, near_different_filter, mode="wrap"
+            )
+            > 5
+        ).astype(np.uint8)
 
         difference_mask = near_different
         print("DIFF MASK!", np.sum(near_different))
         if np.sum(near_different) < 100:
             print("USE ACTUAL DIFFERENT")
-            difference_mask = different 
-
+            difference_mask = different
 
         d_print(contrasting.shape, different.shape)
         d_print(
-            contrasting.min(),
-            contrasting.max(),
-            different.min(),
-            different.max(),
+            contrasting.min(), contrasting.max(), different.min(), different.max(),
         )
 
-        update_mask = contrasting * difference_mask # * near_light # * dark
+        update_mask = contrasting * difference_mask  # * near_light # * dark
         update_mask = np.clip(update_mask, 0, 1).astype(np.uint8)
 
         if __name__ == "__main__":
@@ -268,10 +279,12 @@ def cleaning_cellular_automata(cropped_text):
             (1 - difference_mask), adjacent_ct_filter, mode="wrap"
         )
 
-        use_new_state_mask = (update_mask) * (adj_nondifferent_counts != 0).astype(np.uint8)
-        adj_nondifferent_counts_no_zeros = adj_nondifferent_counts + (adj_nondifferent_counts == 0).astype(
+        use_new_state_mask = (update_mask) * (adj_nondifferent_counts != 0).astype(
             np.uint8
         )
+        adj_nondifferent_counts_no_zeros = adj_nondifferent_counts + (
+            adj_nondifferent_counts == 0
+        ).astype(np.uint8)
 
         d_print(update_mask.min(), update_mask.max())
         d_print(adj_colors_sum.min(), adj_colors_sum.max())

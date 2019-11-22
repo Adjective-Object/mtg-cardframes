@@ -89,10 +89,10 @@ if __name__ == "__main__":
         if not os.path.isdir(out_tmp_subdir):
             os.mkdir(out_tmp_subdir)
         for i in range(0, len(all_title_lines)):
-            print('cleaing input %s / %s' % (i + 1 , len(all_title_lines) + 1))
-            cleaned = cleaning_cellular_automata(all_title_lines[i].reshape((
-                all_title_lines.shape[1:]
-            )))
+            print("cleaing input %s / %s" % (i + 1, len(all_title_lines) + 1))
+            cleaned = cleaning_cellular_automata(
+                all_title_lines[i].reshape((all_title_lines.shape[1:]))
+            )
             imsave(os.path.join(out_tmp_subdir, "cleaned_%s.png" % i), cleaned)
             all_title_lines[i] = cleaned
 

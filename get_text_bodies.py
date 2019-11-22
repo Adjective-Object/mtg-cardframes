@@ -78,10 +78,10 @@ if __name__ == "__main__":
             if not os.path.isdir(out_tmp_subdir):
                 os.mkdir(out_tmp_subdir)
             for i in range(0, len(all_text_bodies)):
-                print('cleaing input %s / %s' % (i + 1 , len(all_text_bodies) + 1))
-                cleaned = cleaning_cellular_automata(all_text_bodies[i].reshape((
-                    all_text_bodies.shape[1:]
-                )))
+                print("cleaing input %s / %s" % (i + 1, len(all_text_bodies) + 1))
+                cleaned = cleaning_cellular_automata(
+                    all_text_bodies[i].reshape((all_text_bodies.shape[1:]))
+                )
                 imsave(os.path.join(out_tmp_subdir, "cleaned_%s.png" % i), cleaned)
                 all_text_bodies[i] = cleaned
 
@@ -96,4 +96,12 @@ if __name__ == "__main__":
             print(merged.shape, merged.min(), merged.max())
             # plt.imshow(mask)
             # plt.show()
-            imsave(os.path.join(out_dir, name + ("_creature" if is_creature else "_noncreature") + "_cleaned_merged.png"), merged)
+            imsave(
+                os.path.join(
+                    out_dir,
+                    name
+                    + ("_creature" if is_creature else "_noncreature")
+                    + "_cleaned_merged.png",
+                ),
+                merged,
+            )

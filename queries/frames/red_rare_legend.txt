@@ -1,1 +1,0 @@
-i:r -i:u -i:g -i:w -i:b -i:c t:creature t:legend -t:enchantment frame:2015 rarity>=rare set:dom,grn,m19,m20,mh1,c18,gk
