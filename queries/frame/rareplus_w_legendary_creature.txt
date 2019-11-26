@@ -1,0 +1,1 @@
+-id:r -id:u -id:g -id:b -id:c id:w t:legend type:creature -type:enchantment rarity>=rare frame:2015 set:dom,grn,m19,m20,mh1,c18,gk

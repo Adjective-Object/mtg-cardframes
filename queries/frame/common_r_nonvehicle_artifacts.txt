@@ -1,0 +1,1 @@
+-id:u -id:g -id:w -id:b -id:c id:r (type:artifact and -type:vehicle) rarity<rare frame:2015 set:dom,grn,m19,m20,mh1,c18,gk

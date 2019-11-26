@@ -1,0 +1,1 @@
+id:g -id:r -id:u -id:w -id:b -id:c wm:selesnya frame:2015 set:dom,grn,m19,m20,mh1,c18,gk

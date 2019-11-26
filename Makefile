@@ -25,17 +25,23 @@ OUT_FRAMES = $(patsubst queries/frames/%.txt,out/frames/%.png,$(IN_FRAMES))
 IN_TEXT_BOXES = $(wildcard queries/text_boxes/*.txt)
 OUT_TEXT_BOXES = $(patsubst queries/text_boxes/%.txt,out/text_boxes/%.png,$(IN_TEXT_BOXES))
 
+.DEFAULT_GOAL = default
+
 # include make rules for calculating frame dependencies
 include ./regions.make
 
-.DEFAULT: $(REGION_frame_OUT) $(REGION_title_line_OUT)
+regions.make: config.json
+	python ./gen_makefile.py > regions.make
+
+
+default: $(REGION_title_line_OUT) $(REGION_power_box_OUT) $(REGION_text_body_OUT) $(REGION_frame_OUT) 
 
 # don't ever delete intermediates -- we want to have on-disk caching.
 .SECONDARY:
 
 # download card image
 card_cache/%/card_image.png: card_cache/%/card.json
-	bash -c "curl $$(jq '.image_uris.png' $<) -o $@"
+	bash -c "curl $$(jq '(.image_uris//.card_faces[0].image_uris).png' $<) -o $@"
 	sleep 0.2
 
 

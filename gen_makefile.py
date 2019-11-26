@@ -1,6 +1,13 @@
 import json, re
 
 
+def get_cleaning_args(region):
+    if "clean" not in region or not isinstance(region["clean"], dict):
+        return ""
+
+    return " ".join("--%s=%s" % (key, val) for [key, val] in region["clean"].items())
+
+
 def tabify(space_str):
     return re.sub(r"^    ", "\t", space_str)
 
@@ -20,11 +27,11 @@ out/{region_name}/%.png: queries/{region_name}/%/make_rule.make
 
 queries/{region_name}/%/make_rule.make: queries/{region_name}/%/ids.txt ./meta/compose_image_makefile_from_ids.py
 	mkdir -p queries/{region_name}/$*
-	./meta/compose_image_makefile_from_ids.py --output_prefix_path=out/{region_name} --input_prefix_path={input_prefix}/border_crop.png $* $< > $@
+	./meta/compose_image_makefile_from_ids.py --output_prefix_path=out/{region_name} --input_prefix_path={input_prefix}/{region_name}.png $* $< > $@
 
 card_cache/%/cleaned/{region_name}.png: card_cache/%/raw/{region_name}.png ./cleaning_cellular_automata.py
 	mkdir -p $$(dirname $@)
-	./clean_image.py $< $@
+	./clean_image.py $< $@ {cleaning_args}
 
 
 # get query result from scryfall and cache 
@@ -33,7 +40,9 @@ queries/{region_name}/%/ids.txt: queries/{region_name}/%.txt
 	./query_scryfall.py "$$(cat $<)" > $@
 
     """.format(
-        region_name=region_name, input_prefix="cleaned" if region["clean"] else "raw",
+        cleaning_args=get_cleaning_args(region),
+        region_name=region_name,
+        input_prefix="cleaned" if region["clean"] else "raw",
     )
 
     if "prep_script" in region:

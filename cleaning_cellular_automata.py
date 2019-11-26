@@ -3,6 +3,7 @@ import scipy.ndimage
 import matplotlib.pyplot as plt
 from imageio import imread
 from skimage import color
+import sys
 
 contrast_score_matricies = [
     np.array(
@@ -136,7 +137,14 @@ def d_print(*args):
         print(*args)
 
 
-def cleaning_cellular_automata(cropped_text):
+def cleaning_cellular_automata(
+    cropped_text,
+    L_COLOR_DISTANCE_SCALE=3,
+    A_COLOR_DISTANCE_SCALE=3,
+    B_COLOR_DISTANCE_SCALE=3,
+    NORMALIZED_WEIGHTED_COLOR_DISTANCE_THRESHOLD=0.8,
+):
+
     state = cropped_text / 255
     single_color_channel_shape = (state.shape[0], state.shape[1], 1)
 
@@ -147,29 +155,15 @@ def cleaning_cellular_automata(cropped_text):
     l_med = np.median(l)
     a_med = np.median(a)
     b_med = np.median(b)
-    l_std = l.std()
-    a_std = a.std()
-    b_std = b.std()
+    l_std = max(l.std(), 0.000000001)
+    a_std = max(a.std(), 0.000000001)
+    b_std = max(b.std(), 0.000000001)
 
-    L_COLOR_DISTANCE_SCALE = 15
-    A_COLOR_DISTANCE_SCALE = 1
-    B_COLOR_DISTANCE_SCALE = 1
-
-    L_WEIGHT = 5
-    A_WEIGHT = 2
-    B_WEIGHT = 2
-
-    d_print("l", "med", l_med, "std", l_std, "WEIGHTED", l_std * L_WEIGHT)
-    d_print("a", "med", a_med, "std", a_std, "WEIGHTED", a_std * A_WEIGHT)
-    d_print("b", "med", b_med, "std", b_std, "WEIGHTED", b_std * B_WEIGHT)
+    d_print("l", "med", l_med, "std", l_std, "WEIGHTED", l_std * L_COLOR_DISTANCE_SCALE)
+    d_print("a", "med", a_med, "std", a_std, "WEIGHTED", a_std * A_COLOR_DISTANCE_SCALE)
+    d_print("b", "med", b_med, "std", b_std, "WEIGHTED", b_std * B_COLOR_DISTANCE_SCALE)
 
     all_updates_mask = np.zeros(single_color_channel_shape)
-
-    PERMITTED_DIFFERENCE_IN_STD_L = 1.2
-    PERMITTED_DIFFERENCE_IN_STD_A = 1.5
-    PERMITTED_DIFFERENCE_IN_STD_B = 1.9
-
-    NORMALZIED_WEIGHTED_COLOR_DISTANCE_THRESHOLD = 3
 
     for i in range(30):
         state_lab = color.rgb2lab(color.rgba2rgb(state)) / 100
@@ -192,14 +186,14 @@ def cleaning_cellular_automata(cropped_text):
         # push values away from center, then clamp
         # v = 1 - np.abs(np.power(1 - scores, 3))
         contrasting = np.abs(contrast_filter_scores) > 0.6
-        different_l = np.abs(state_lab[:, :, 0] - l_med) > (
-            l_std * PERMITTED_DIFFERENCE_IN_STD_L
+        distance_l = np.power(
+            np.abs(state_lab[:, :, 0] - l_med) / l_std * L_COLOR_DISTANCE_SCALE, 2,
         )
-        different_a = np.abs(state_lab[:, :, 1] - a_med) > (
-            a_std * PERMITTED_DIFFERENCE_IN_STD_A
+        distance_a = np.power(
+            np.abs(state_lab[:, :, 1] - a_med) / a_std * A_COLOR_DISTANCE_SCALE, 2,
         )
-        different_b = np.abs(state_lab[:, :, 2] - b_med) > (
-            b_std * PERMITTED_DIFFERENCE_IN_STD_B
+        distance_b = np.power(
+            np.abs(state_lab[:, :, 2] - b_med) / b_std * B_COLOR_DISTANCE_SCALE, 2,
         )
         color_distance = np.sqrt(
             np.power(np.abs(state_lab[:, :, 0] - l_med) * L_COLOR_DISTANCE_SCALE, 2,)
@@ -213,12 +207,12 @@ def cleaning_cellular_automata(cropped_text):
             color_distance.max(),
         )
         # different = np.bitwise_or(
-        #     different_l,
-        #     different_a,
-        #     different_b,
+        #     distance_l,
+        #     distance_a,
+        #     distance_b,
         # ).astype(np.uint8)
         different = (
-            color_distance > NORMALZIED_WEIGHTED_COLOR_DISTANCE_THRESHOLD
+            color_distance > NORMALIZED_WEIGHTED_COLOR_DISTANCE_THRESHOLD
         ).astype(np.uint8)
 
         near_different = (
@@ -245,20 +239,27 @@ def cleaning_cellular_automata(cropped_text):
         if __name__ == "__main__":
             plt.subplot(4, 3, 1, title="contrasting")
             plt.imshow(contrasting, cmap=plt.get_cmap("coolwarm"), vmin=-1, vmax=1)
-            # plt.subplot(4, 3, 2, title="different_l")
-            # plt.imshow(different_l, cmap=plt.get_cmap("coolwarm"), vmin=-1, vmax=1)
-            # plt.subplot(4, 3, 3, title="different_a")
-            # plt.imshow(different_a, cmap=plt.get_cmap("coolwarm"), vmin=-1, vmax=1)
-            # plt.subplot(4, 3, 4, title="different_b")
-            plt.imshow(different_b, cmap=plt.get_cmap("coolwarm"), vmin=-1, vmax=1)
-            plt.subplot(4, 3, 2, title="color_distance")
+            plt.subplot(4, 3, 2, title="distance_l")
+            plt.imshow(
+                distance_l, cmap=plt.get_cmap("coolwarm"), vmin=0,
+            )
+            plt.subplot(4, 3, 3, title="distance_a")
+            plt.imshow(
+                distance_a, cmap=plt.get_cmap("coolwarm"), vmin=0,
+            )
+            plt.subplot(4, 3, 4, title="distance_b")
+            plt.imshow(
+                distance_b, cmap=plt.get_cmap("coolwarm"), vmin=0,
+            )
+            plt.subplot(4, 3, 5, title="color_distance")
             plt.imshow(color_distance, cmap=plt.get_cmap("coolwarm"), vmin=0)
-            plt.subplot(4, 3, 3, title="different")
+            plt.subplot(4, 3, 6, title="different")
             plt.imshow(different, cmap=plt.get_cmap("coolwarm"), vmin=-1, vmax=1)
-            plt.subplot(4, 3, 4, title="near_different")
+            plt.subplot(4, 3, 7, title="near_different")
             plt.imshow(near_different, cmap=plt.get_cmap("coolwarm"), vmin=-1, vmax=1)
-            plt.subplot(4, 3, 6, title="update_mask")
+            plt.subplot(4, 3, 8, title="update_mask")
             plt.imshow(update_mask, cmap=plt.get_cmap("coolwarm"), vmin=-1, vmax=1)
+            plt.show()
 
         # d_print(
         #     'ahh',
@@ -380,8 +381,9 @@ def cleaning_cellular_automata(cropped_text):
 
 
 if __name__ == "__main__":
+    image_path = sys.argv[1] if len(sys.argv) > 1 else "Crackling-Drake-Text.png"
     # image = imread('./text_bodies/c:w+c:b_creature_merged.png')
     # image = imread("./text_bodies/c:r+c:u_creature_merged.png")
-    image = imread("Crackling-Drake-Text.png")
+    image = imread(image_path)
     # image = imread("Draconic-Disciple-Text.png")
     cleaning_cellular_automata(image)

@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 from diff_cards import remove_card_art, remove_collectors_type
 import json, os, sys
 import config

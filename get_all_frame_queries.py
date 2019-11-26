@@ -17,7 +17,7 @@ colors = [
 color_flags = ["id:%s" % c for c in colors]
 
 all_color_flag_combos = [
-    "(c:%s and c:%s) -m:{%s/%s}" % (a, b, a, b)
+    "id:%s%s (c:%s and c:%s) -m:{%s/%s}" % (a, b, a, b, a, b)
     for a, b in itertools.combinations(colors, 2)
 ]
 
@@ -39,8 +39,8 @@ for color_flag in all_color_flag_combos + color_flags:
         for type_name, type_flag in {
             # don't bother fetching new card border legendary enchantment creatures
             # they're too rare
-            "legendary_creature": "-t:legend type:creature -type:enchantment",
-            "nonlegendary_creature": "t:legend type:creature -type:enchantment",
+            "nonlegendary_creature": "-t:legend type:creature -type:enchantment",
+            "legendary_creature": "t:legend type:creature -type:enchantment",
             "enchantment_creature": "type:creature type:enchantment",
             "land": "type:land",
             "sorceries_instants_and_enchantments": "(type:sorcery or type:instant or type:enchantment) -type:creature",

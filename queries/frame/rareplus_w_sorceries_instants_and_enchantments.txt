@@ -1,0 +1,1 @@
+-id:r -id:u -id:g -id:b -id:c id:w (type:sorcery or type:instant or type:enchantment) -type:creature rarity>=rare frame:2015 set:dom,grn,m19,m20,mh1,c18,gk
