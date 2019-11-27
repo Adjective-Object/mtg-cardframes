@@ -55,6 +55,7 @@ for color_flag in all_color_flag_combos + color_flags:
                     type_flag,
                     rarity_flag,
                     "frame:2015",
+                    "-is:split -is:meld -is:transform -is:leveler",
                     "set:dom,grn,m19,m20,mh1,c18,gk",
                 ]
             )

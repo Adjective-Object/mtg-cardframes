@@ -1,16 +1,16 @@
 
 REGION_frame_IN = $(wildcard queries/frame/*.txt)
-REGION_frame_OUT = $(patsubst queries/frame/%.txt,out/frame/%.png,$(REGION_frame_IN))
+REGION_frame_OUT = $(patsubst queries/frame/%.txt,composed_regions/frame/%.png,$(REGION_frame_IN))
 
 
 # include make rules for calculating frame dependencies
 include $(patsubst queries/frame/%.txt,queries/frame/%/make_rule.make,$(REGION_frame_IN))
 
-out/frame/%.png: queries/frame/%/make_rule.make
+composed_regions/frame/%.png: queries/frame/%/make_rule.make
 
-queries/frame/%/make_rule.make: queries/frame/%/ids.txt ./meta/compose_image_makefile_from_ids.py
+queries/frame/%/make_rule.make: queries/frame/%/ids.txt ./meta/compose_image_makefile_from_ids.py ./gen_makefile.py
 	mkdir -p queries/frame/$*
-	./meta/compose_image_makefile_from_ids.py --output_prefix_path=out/frame --input_prefix_path=raw/frame.png $* $< > $@
+	./meta/compose_image_makefile_from_ids.py --input_path_relative=raw/frame.png --output_prefix_path=composed_regions/frame $* $< > $@
 
 card_cache/%/cleaned/frame.png: card_cache/%/raw/frame.png ./cleaning_cellular_automata.py
 	mkdir -p $$(dirname $@)
@@ -31,17 +31,17 @@ card_cache/%/raw/frame.png: card_cache/%/card_image.png card_cache/%/raw
 
 
 REGION_title_line_IN = $(wildcard queries/title_line/*.txt)
-REGION_title_line_OUT = $(patsubst queries/title_line/%.txt,out/title_line/%.png,$(REGION_title_line_IN))
+REGION_title_line_OUT = $(patsubst queries/title_line/%.txt,composed_regions/title_line/%.png,$(REGION_title_line_IN))
 
 
 # include make rules for calculating frame dependencies
 include $(patsubst queries/title_line/%.txt,queries/title_line/%/make_rule.make,$(REGION_title_line_IN))
 
-out/title_line/%.png: queries/title_line/%/make_rule.make
+composed_regions/title_line/%.png: queries/title_line/%/make_rule.make
 
-queries/title_line/%/make_rule.make: queries/title_line/%/ids.txt ./meta/compose_image_makefile_from_ids.py
+queries/title_line/%/make_rule.make: queries/title_line/%/ids.txt ./meta/compose_image_makefile_from_ids.py ./gen_makefile.py
 	mkdir -p queries/title_line/$*
-	./meta/compose_image_makefile_from_ids.py --output_prefix_path=out/title_line --input_prefix_path=cleaned/title_line.png $* $< > $@
+	./meta/compose_image_makefile_from_ids.py --input_path_relative=cleaned/title_line.png --output_prefix_path=composed_regions/title_line $* $< > $@
 
 card_cache/%/cleaned/title_line.png: card_cache/%/raw/title_line.png ./cleaning_cellular_automata.py
 	mkdir -p $$(dirname $@)
@@ -62,17 +62,17 @@ card_cache/%/raw/title_line.png: card_cache/%/card_image.png card_cache/%/raw
 
 
 REGION_type_line_IN = $(wildcard queries/type_line/*.txt)
-REGION_type_line_OUT = $(patsubst queries/type_line/%.txt,out/type_line/%.png,$(REGION_type_line_IN))
+REGION_type_line_OUT = $(patsubst queries/type_line/%.txt,composed_regions/type_line/%.png,$(REGION_type_line_IN))
 
 
 # include make rules for calculating frame dependencies
 include $(patsubst queries/type_line/%.txt,queries/type_line/%/make_rule.make,$(REGION_type_line_IN))
 
-out/type_line/%.png: queries/type_line/%/make_rule.make
+composed_regions/type_line/%.png: queries/type_line/%/make_rule.make
 
-queries/type_line/%/make_rule.make: queries/type_line/%/ids.txt ./meta/compose_image_makefile_from_ids.py
+queries/type_line/%/make_rule.make: queries/type_line/%/ids.txt ./meta/compose_image_makefile_from_ids.py ./gen_makefile.py
 	mkdir -p queries/type_line/$*
-	./meta/compose_image_makefile_from_ids.py --output_prefix_path=out/type_line --input_prefix_path=cleaned/type_line.png $* $< > $@
+	./meta/compose_image_makefile_from_ids.py --input_path_relative=cleaned/type_line.png --output_prefix_path=composed_regions/type_line $* $< > $@
 
 card_cache/%/cleaned/type_line.png: card_cache/%/raw/type_line.png ./cleaning_cellular_automata.py
 	mkdir -p $$(dirname $@)
@@ -93,17 +93,17 @@ card_cache/%/raw/type_line.png: card_cache/%/card_image.png card_cache/%/raw
 
 
 REGION_text_body_IN = $(wildcard queries/text_body/*.txt)
-REGION_text_body_OUT = $(patsubst queries/text_body/%.txt,out/text_body/%.png,$(REGION_text_body_IN))
+REGION_text_body_OUT = $(patsubst queries/text_body/%.txt,composed_regions/text_body/%.png,$(REGION_text_body_IN))
 
 
 # include make rules for calculating frame dependencies
 include $(patsubst queries/text_body/%.txt,queries/text_body/%/make_rule.make,$(REGION_text_body_IN))
 
-out/text_body/%.png: queries/text_body/%/make_rule.make
+composed_regions/text_body/%.png: queries/text_body/%/make_rule.make
 
-queries/text_body/%/make_rule.make: queries/text_body/%/ids.txt ./meta/compose_image_makefile_from_ids.py
+queries/text_body/%/make_rule.make: queries/text_body/%/ids.txt ./meta/compose_image_makefile_from_ids.py ./gen_makefile.py
 	mkdir -p queries/text_body/$*
-	./meta/compose_image_makefile_from_ids.py --output_prefix_path=out/text_body --input_prefix_path=cleaned/text_body.png $* $< > $@
+	./meta/compose_image_makefile_from_ids.py --input_path_relative=cleaned/text_body.png --output_prefix_path=composed_regions/text_body $* $< > $@
 
 card_cache/%/cleaned/text_body.png: card_cache/%/raw/text_body.png ./cleaning_cellular_automata.py
 	mkdir -p $$(dirname $@)
@@ -124,17 +124,17 @@ card_cache/%/raw/text_body.png: card_cache/%/card_image.png card_cache/%/raw
 
 
 REGION_power_box_IN = $(wildcard queries/power_box/*.txt)
-REGION_power_box_OUT = $(patsubst queries/power_box/%.txt,out/power_box/%.png,$(REGION_power_box_IN))
+REGION_power_box_OUT = $(patsubst queries/power_box/%.txt,composed_regions/power_box/%.png,$(REGION_power_box_IN))
 
 
 # include make rules for calculating frame dependencies
 include $(patsubst queries/power_box/%.txt,queries/power_box/%/make_rule.make,$(REGION_power_box_IN))
 
-out/power_box/%.png: queries/power_box/%/make_rule.make
+composed_regions/power_box/%.png: queries/power_box/%/make_rule.make
 
-queries/power_box/%/make_rule.make: queries/power_box/%/ids.txt ./meta/compose_image_makefile_from_ids.py
+queries/power_box/%/make_rule.make: queries/power_box/%/ids.txt ./meta/compose_image_makefile_from_ids.py ./gen_makefile.py
 	mkdir -p queries/power_box/$*
-	./meta/compose_image_makefile_from_ids.py --output_prefix_path=out/power_box --input_prefix_path=cleaned/power_box.png $* $< > $@
+	./meta/compose_image_makefile_from_ids.py --input_path_relative=cleaned/power_box.png --output_prefix_path=composed_regions/power_box $* $< > $@
 
 card_cache/%/cleaned/power_box.png: card_cache/%/raw/power_box.png ./cleaning_cellular_automata.py
 	mkdir -p $$(dirname $@)

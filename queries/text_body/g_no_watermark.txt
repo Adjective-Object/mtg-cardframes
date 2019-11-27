@@ -1,1 +1,1 @@
-id:g -id:r -id:u -id:w -id:b -id:c -has:watermark frame:2015 set:dom,grn,m19,m20,mh1,c18,gk
+id:g -id:r -id:u -id:w -id:b -id:c -has:watermark frame:2015 -is:split -is:meld -is:transform -is:leveler set:dom,grn,m19,m20,mh1,c18,gk

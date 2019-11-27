@@ -13,3 +13,5 @@ composed_tiff
 card_cache
 queries/*/*/*
 all_cards
+composed_regions
+single-run.png

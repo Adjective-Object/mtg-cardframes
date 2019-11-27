@@ -65,7 +65,12 @@ for color_flag in all_color_flag_combos + color_flags:
         search_term = " ".join(
             [color_flag]
             + not_flags
-            + [watermark_flag, "frame:2015", "set:dom,grn,m19,m20,mh1,c18,gk",]
+            + [
+                watermark_flag,
+                "frame:2015",
+                "-is:split -is:meld -is:transform -is:leveler",
+                "set:dom,grn,m19,m20,mh1,c18,gk",
+            ]
         )
 
         query_name = color_name + "_" + watermark_name

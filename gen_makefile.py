@@ -17,17 +17,17 @@ rule_blocks = []
 for region_name, region in config["regions"].items():
     rule_block = """
 REGION_{region_name}_IN = $(wildcard queries/{region_name}/*.txt)
-REGION_{region_name}_OUT = $(patsubst queries/{region_name}/%.txt,out/{region_name}/%.png,$(REGION_{region_name}_IN))
+REGION_{region_name}_OUT = $(patsubst queries/{region_name}/%.txt,composed_regions/{region_name}/%.png,$(REGION_{region_name}_IN))
 
 
 # include make rules for calculating frame dependencies
 include $(patsubst queries/{region_name}/%.txt,queries/{region_name}/%/make_rule.make,$(REGION_{region_name}_IN))
 
-out/{region_name}/%.png: queries/{region_name}/%/make_rule.make
+composed_regions/{region_name}/%.png: queries/{region_name}/%/make_rule.make
 
-queries/{region_name}/%/make_rule.make: queries/{region_name}/%/ids.txt ./meta/compose_image_makefile_from_ids.py
+queries/{region_name}/%/make_rule.make: queries/{region_name}/%/ids.txt ./meta/compose_image_makefile_from_ids.py ./gen_makefile.py
 	mkdir -p queries/{region_name}/$*
-	./meta/compose_image_makefile_from_ids.py --output_prefix_path=out/{region_name} --input_prefix_path={input_prefix}/{region_name}.png $* $< > $@
+	./meta/compose_image_makefile_from_ids.py --input_path_relative={compose_input_prefix}/{region_name}.png --output_prefix_path=composed_regions/{region_name} $* $< > $@
 
 card_cache/%/cleaned/{region_name}.png: card_cache/%/raw/{region_name}.png ./cleaning_cellular_automata.py
 	mkdir -p $$(dirname $@)
@@ -42,7 +42,7 @@ queries/{region_name}/%/ids.txt: queries/{region_name}/%.txt
     """.format(
         cleaning_args=get_cleaning_args(region),
         region_name=region_name,
-        input_prefix="cleaned" if region["clean"] else "raw",
+        compose_input_prefix="cleaned" if region["clean"] else "raw",
     )
 
     if "prep_script" in region:

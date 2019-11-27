@@ -19,18 +19,12 @@ POWERBOX_Y = 930
 POWERBOX_W = 104
 POWERBOX_H = 46
 
-IN_FRAMES = $(wildcard queries/frames/*.txt)
-OUT_FRAMES = $(patsubst queries/frames/%.txt,out/frames/%.png,$(IN_FRAMES))
-
-IN_TEXT_BOXES = $(wildcard queries/text_boxes/*.txt)
-OUT_TEXT_BOXES = $(patsubst queries/text_boxes/%.txt,out/text_boxes/%.png,$(IN_TEXT_BOXES))
-
 .DEFAULT_GOAL = default
 
 # include make rules for calculating frame dependencies
 include ./regions.make
 
-regions.make: config.json
+regions.make: config.json gen_makefile.py
 	python ./gen_makefile.py > regions.make
 
 

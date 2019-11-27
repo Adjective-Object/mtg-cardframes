@@ -8,11 +8,7 @@ def get_parser():
         description="Create a make rule for composing files"
     )
     parser.add_argument(
-        "query_name",
-        metavar="query_name",
-        type=str,
-        nargs=1,
-        help="name of the query",
+        "query_name", metavar="query_name", type=str, nargs=1, help="name of the query",
     )
     parser.add_argument(
         "ids_file_path",
@@ -27,7 +23,7 @@ def get_parser():
         default="out/frames",
     )
     parser.add_argument(
-        "--input_prefix_path",
+        "--input_path_relative",
         dest="card_input_relative_path",
         default="raw/border_crop.png",
     )

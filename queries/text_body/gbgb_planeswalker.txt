@@ -1,1 +1,1 @@
-(c:g and c:b) id:gb -id:r -id:u -id:w -id:b -id:c wm:planeswalker frame:2015 set:dom,grn,m19,m20,mh1,c18,gk
+(c:g and c:b) id:gb -id:r -id:u -id:w -id:b -id:c wm:planeswalker frame:2015 -is:split -is:meld -is:transform -is:leveler set:dom,grn,m19,m20,mh1,c18,gk

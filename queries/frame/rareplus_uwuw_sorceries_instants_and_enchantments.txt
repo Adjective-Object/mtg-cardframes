@@ -1,1 +1,1 @@
--id:r -id:g -id:w -id:b -id:c id:uw (c:u and c:w) -m:{u/w} (type:sorcery or type:instant or type:enchantment) -type:creature rarity>=rare frame:2015 set:dom,grn,m19,m20,mh1,c18,gk
+-id:r -id:g -id:w -id:b -id:c id:uw (c:u and c:w) -m:{u/w} (type:sorcery or type:instant or type:enchantment) -type:creature rarity>=rare frame:2015 -is:split -is:meld -is:transform -is:leveler set:dom,grn,m19,m20,mh1,c18,gk
